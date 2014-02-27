@@ -1,0 +1,16 @@
+{{extend 'layout.html'}}
+<link href="{{=URL('static','css/bootstrap.css')}}" rel="stylesheet"> 
+{{import os}}
+{{k=1}}
+{{for i in p:}}
+<h2>{{=k}}. {{=i.name}}</h2>
+{{if(i.check_file==1):}} <h5>Processed : Yes</h5>
+{{cwd=os.getcwd()}}
+{{filename = db(db.Uploads.id==i.id).select(db.Uploads.name)}}
+{{appname = request.application}}
+{{cwd=cwd+'/applications/' + appname + '/uploads'}}
+{{cwd = cwd + '/'+filename[0].name}}
+<a href="{{=URL('download_file', vars=dict(filename=cwd))}}" class="btn btn-info btn-mini active"> Show Annotated file </a> 
+{{else:}}<h5>Processed : No <a href="{{=URL(r=request , f='extracting_words' , args=i.id)}}"><br/>Process</a></h5>{{pass}}{{k=k+1}}{{pass}}
+{{k=k+1}}
+{{pass}}

@@ -1,0 +1,43 @@
+<Wassup>
+
+
+Multi-Word Expression:हमें माता पिता   (Syntactic Relations)
+
+Bracketing
+[[हमें][माता]][पिता]
+
+
+Multi-Word Expression:करना चाहीए   (Semantic Relations)
+
+Course Grain-Fine Grain Relations
+1. Material
+2. Other
+3. Part-Mass
+4. Quality-Quantity
+5. Related_To
+6. Spatial
+
+
+
+Multi-Word Expression:करना चाहीए   (Semantic Relations)
+
+Paraphrase - Post-Processing
+ये ऐसा होगा
+
+
+Multi-Word Expression:करना चाहीए   (Semantic Relations)
+
+Paraphrase - Verb
+ये कैसा होगा
+
+
+Multi-Word Expression:करना चाहीए   (Semantic Relations)
+
+Paraphrase - Normal
+ये साधा है।
+
+
+Multi-Word Expression:करना चाहीए   (Semantic Relations)
+
+Paraphrase - Normal
+इस्में क्या करू

@@ -1,0 +1,365 @@
+{{extend 'layout.html'}}
+
+<title>Semantic Annotations</title> 
+<link href="{{=URL('static','css/bootstrap.css')}}" rel="stylesheet"> 
+
+
+
+<style>
+	.my-button { background-color:#66FF33;}
+
+</style>
+
+<script>
+function add(text,text1,text2)
+    {
+    	
+    	var k=text1+'a';
+    	var a=document.getElementById(k);
+    	var innerHTML=a.innerHTML;
+    	
+    	var index = innerHTML.indexOf(text);
+
+			if ( index >= 0 )
+			{ 
+				innerHTML = innerHTML.substring(0,index) + "<span id='"+text1+"_"+text2+"'class='my-button'>" + text + "</span>" + innerHTML.substring(index + text.length);
+				a.innerHTML = innerHTML 
+			}
+    	
+    	
+    }
+	
+
+		
+</script>
+
+<script>
+function change(text,next)
+	{	
+		var a=document.getElementById(text);
+		var b=a.innerHTML;
+		
+		var k=0;
+		var len=b.length;
+		var i=0;
+		var l=0;
+		var flag=0;
+        
+        while(i<len)
+		{
+			
+            if((b[0]=='<')&&(l==0))
+            {
+            flag=1;
+            l++;
+            }
+			if(((b[i]==' ')&&(b[i+1]=='<')&&(b[i-1]!='>')&&(i>0)&&(i<len-1)))
+                {
+                b=b.substring(0,i)+"</span>"+b[i]+b.substring(i+1);
+                len=b.length;
+                flag=1;
+                
+                }
+                if((b[i]==' ')&&(b[i-1]=='>')&&(b[i+1]!='<')&&(i>0)&&(i<len-1))
+                    {
+                         b=b.substring(0,i)+b[i]+"<span id='"+next+"' class='word'>"+b.substring(i+1);
+				len=b.length;
+                    flag=0;
+                    }
+                    
+			if((b[i]==' ')&&(b[i-1]!='>')&&(b[i+1]!='<')&&(b[i-1]!='n')&&(b[i+1]!='c')&&(flag==0)&&(i>0)&&(i<len-1))
+			{	
+                b=b.substring(0,i)+"</span>"+b[i]+"<span id='"+next+"' class='word'>"+b.substring(i+1);
+				len=b.length;
+				
+			}
+			i++;
+		}
+		
+        if((b[0]=='<'))
+          {
+        b="<h3>"+b+"</span>"+"</h3>";
+          }
+        else if(b[i-1]=='>')
+        {
+            b="<h3>"+"<span id='"+next+"'class='word'>"+b+"</h3>";
+        }
+        else
+        {
+            b="<h3>"+"<span id='"+next+"' class='word'>"+b+"</span>"+"</h3>";
+        }
+		a.innerHTML=b;
+		
+	}
+</script>
+{{if(auth.has_membership(1)):}}
+<div style="text-align:right"><button id="top" class="btn btn-danger">Back To Admin Page</button></div>
+{{pass}}
+<h2>Text Files</h2>
+<br/>
+<div class="panel-group" id="accordion">
+        {{count=0}}
+        {{dent=1}}
+    {{for i in c:}}
+    <center><h2><div id="kick" data-message=""></div></h2></center>
+    <input type="hidden" id="last" name="public21" value="">
+    {{appname = request.application}}
+    {{str1='applications/' + appname + '/uploads/'+i.saved_name}}
+{{f=open(str1,'r')}}
+{{k=f.readlines()}}
+        {{if count%5==0:}}
+    <div class="panel panel-success">
+        {{pass}}
+        {{if count%5==1:}}
+    <div class="panel panel-primary">
+        {{pass}}
+        {{if count%5==2:}}
+    <div class="panel panel-primary">
+        {{pass}}
+        {{if count%5==3:}}
+    <div class="panel panel-primary">
+        {{pass}}
+        {{if count%5==4:}}
+    <div class="panel panel-primary">
+        {{pass}}
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion" href="#{{=i.name}}l"><h4>{{=dent}}.{{=i.name}}</h4></a>
+            </h3>
+        </div>
+        <div id="{{=i.name}}l" class="panel-collapse collapse">
+            <div class="panel-body">
+                {{for p in k:}}
+                <br/>
+                <div id="{{=i.id}}a">{{=p}}</div>
+                {{pass}}
+            </div>
+        </div>
+    </div>
+{{for t in d:}}
+{{if(t.corr_file==i.id):}}
+<script>
+    add("{{=t.name}}","{{=i.id}}",{{=t.id}});
+</script>
+        {{count=count+1}}
+        
+{{pass}}
+{{pass}}
+
+<script>
+        change("{{=i.id}}a","{{=i.id}}");
+</script>
+
+
+{{dent=dent+1}}
+
+{{pass}}
+    </div>
+
+
+
+<div id="element_to_pop_up" >
+<span class="b-close">
+
+    <span>
+
+        X
+
+    </span>
+
+</span>
+    <input type="hidden" id="change_value" name="public1" value="">
+    <input type="hidden" id="change_value2" name="public3" value="">
+    <center><h3 id="public" ></h3></center>
+    <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button id="strike" class="btn btn-danger">StrikeThrough</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <button id="annotate"  class="btn btn-danger">Annotate</button>
+    
+</div>
+
+<div id="element_to_pop_up1" >
+<span class="b-close">
+
+    <span>
+
+        X
+
+    </span>
+
+</span>
+    <input type="hidden" id="change_value1" name="public2" value="">
+    
+    <center><h3 id="head"></h3></center>
+    <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Type Of Multi-Word :<select name="type">
+    <option value="Conjunct verb">Conjunct verb</option>
+    <option value="Noun Compound">Noun Compound</option>
+    <option value="Reduplication">Reduplication</option>
+    <option value="Echo">Echo</option>
+    <option value="Compound Verb">Compound Verb</option>
+    <option value="Idiomatic">Idiomatic</option>
+
+    </select>
+    <br/>
+    <br/>
+    <center><button id="add" class="btn btn-danger" >Add To List</button></center>
+</div>
+
+<script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="../static/js/jquery.bpopup.min.js"></script>
+
+
+           
+
+
+<script>
+
+$("#top").click(function(){
+    document.location='{{=URL(r=request,f='uploading')}}';
+});
+	
+        $("#annotate").click(function(){
+        ajax('change_page', ['public1','public3'], 'shadow_clone');
+       document.location='{{=URL(r=request,f='anno')}}';
+       });
+    
+		
+
+	$(".shower").click(function() {
+		var a=$(this).data('message');
+		a='#'+a+'a';
+		
+		$(a).show("slow");
+	});
+
+	$(".hider").click(function () {
+		var a=$(this).data('message');
+		a='#'+a+'a';
+		
+		$(a).hide(500);
+	});
+
+
+
+	
+
+	$('.word').click(function(){
+		
+		
+		var a=$(this).text();
+		var c=$(this).attr('id');
+		var b=$("#kick").html();
+		b=b+"<span id='word1'>"+a+"</span>"+" ";
+		
+		$('#kick').html(b);
+        $('#kick').data('message',c);
+		
+	}).css({'cursor': 'pointer'});
+
+var k="";
+
+
+
+$('.my-button').bind('click', function(e) {
+                e.preventDefault();
+                k=$(this).text();
+                $("#public").html(k);
+                var e=$(this).attr('id');
+                $("#change_value2").val(e);
+                $("#change_value").val(k);
+                $('#element_to_pop_up').bPopup();
+}).css({'cursor': 'pointer'});
+
+
+
+$('#kick').bind('click', function(e) {
+			e.preventDefault();
+			var p=$(this).text();
+			p=p.substring(0,p.length-1);
+			var c=$(this).data("message");
+			$("#head").html(p);
+			$("#last").val(c);
+    		$("#change_value1").val(p);
+			
+    
+			
+			$('#element_to_pop_up1').bPopup();
+			
+}).css({'cursor': 'pointer'});
+
+
+    $("#add").click(function(){
+    	
+    	
+    	ajax('change_add', ['public2','public21','type'], 'shadow_clone');
+    	setTimeout(refresh, 2000);
+    });
+
+function refresh()
+    {    location.reload();
+    }
+    
+    
+    
+    var _text = "";
+    $("#strike").click(function(){
+   	
+    
+     _text = $("#public").text();
+    StrikeThrough(0);      
+   
+    ajax('change', ['public1'], 'shadow_clone');           
+    setTimeout(refresh, 2000);
+        
+        
+    });
+
+function StrikeThrough(index) {
+    
+    if (index >= _text.length)
+        return false;
+    var sToStrike = _text.substr(0, index + 1);
+    
+    var sAfter = (index < (_text.length - 1)) ? _text.substr(index + 1, _text.length - index) : "";
+    
+    $("#public").html("<strike>" + sToStrike + "</strike>" + sAfter);
+    window.setTimeout(function() {
+        StrikeThrough(index + 1);
+    }, 50);
+}
+    
+
+</script>
+<div id="shadow_clone" style="display:none"></div>
+<style>
+    #element_to_pop_up { 
+    background-color:#fff;
+	border-radius:10px 10px 10px 10px;
+	box-shadow:0 0 25px 5px #999;
+	color:#111;
+	display:none;
+	min-width:450px;
+	padding:25px
+}
+
+#element_to_pop_up1 { 
+    background-color:#fff;
+	border-radius:10px 10px 10px 10px;
+	box-shadow:0 0 25px 5px #999;
+	color:#111;
+	display:none;
+	min-width:450px;
+	padding:25px
+}
+
+.b-close{
+    cursor:pointer;
+    position:absolute;
+    right:10px;
+    top:5px;
+
+.nopes{
+    cursor:crosshair;
+}    
+}
+</style>

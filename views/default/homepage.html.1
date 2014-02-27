@@ -1,0 +1,282 @@
+alert(b);{{extend 'layout.html'}}
+
+<title>Semantic Annotations</title> 
+<link href="{{=URL('static','css/bootstrap.css')}}" rel="stylesheet"> 
+
+
+
+<style>
+	.my-button { background-color:yellow;}
+
+</style>
+
+<script>
+function add(text,text1)
+    {
+    	
+    	var k=text1+'a';
+    	var a=document.getElementById(k);
+    	var innerHTML=a.innerHTML;
+    	
+    	var index = innerHTML.indexOf(text);
+
+			if ( index >= 0 )
+			{ 
+				innerHTML = innerHTML.substring(0,index) + "<span class='my-button'>" + text + "</span>" + innerHTML.substring(index + text.length);
+				a.innerHTML = innerHTML 
+			}
+    	alert(innerHTML);
+    	
+    }
+	
+
+		
+</script>
+
+<script>
+function change(text)
+	{	
+		var a=document.getElementById(text);
+		var b=a.innerHTML;
+		
+		var k=0;
+		var len=b.length;
+		var i=0;
+		var flag=0;
+		while(i<len)
+		{
+			if((b[i]==' ')&&(b[i+1]=='<')&&(b[i-1]!='>'))
+                {
+                b=b.substring(0,i)+"</span>"+b[i]+b.substring(i+1);
+                len=b.length;
+                flag=1;
+                
+                }
+                if((b[i]==' ')&&(b[i-1]=='>')&&(b[i+1]!='<'))
+                    {
+                         b=b.substring(0,i)+b[i]+"<span class='word'>"+b.substring(i+1);
+				len=b.length;
+                    flag=0;
+                    }
+                    
+			if((b[i]==' ')&&(b[i-1]!='>')&&(b[i+1]!='<')&&(b[i]==' ')&&(b[i-1]!='n')&&(b[i+1]!='c')&&flag==0)
+			{	
+                b=b.substring(0,i)+"</span>"+b[i]+"<span class='word'>"+b.substring(i+1);
+				len=b.length;
+				
+			}
+			i++;
+		}
+		b="<h3>"+"<span class='word'>"+b+"</span>"+"</h3>";
+		a.innerHTML=b;
+		alert(b);
+	}
+</script>
+
+<br/>
+{{for i in c:}}
+<h4><div id="kick" data-message="{{=i.id}}"></div></h4>
+<input type="hidden" id="last" name="public21" value="" >
+{{str1='/home/gaurav/web2py/applications/Annotation1/uploads/'+i.saved_name}}
+{{f=open(str1,'r')}}
+{{k=[]}}
+{{k=f.readlines()}}
+<h3>{{=i.name}}</h3>
+<button class="shower" data-message="{{=i.id}}" >Show it</button>
+<button class="hider" data-message="{{=i.id}}">Hide it</button>
+
+
+
+{{for p in k:}}
+<br/>
+<div class="" id="{{=i.id}}a" style="display:none">{{=p}}</div>
+<br/>
+
+
+{{for i in c:}}
+{{for t in d:}}
+{{if(t.corr_file==i.id):}}
+<script>
+    add("{{=t.name}}","{{=i.id}}");
+</script>
+{{pass}}
+{{pass}}
+{{pass}}
+
+<script>
+    //  change("{{=i.id}}a");
+</script>
+
+{{pass}}
+{{pass}}
+
+
+<script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script src="../static/js/jquery.bpopup.min.js"></script>
+
+
+           
+<div id="element_to_pop_up" >
+<span class="button b-close">
+
+    <span>
+
+        X
+
+    </span>
+
+</span>
+    <input type="hidden" id="change_value" name="public1" value="">
+    <center><h3 id="public" ></h3></center>
+    <br/>
+    <button id="strike">StrikeThrough</button>
+</div>
+
+<div id="element_to_pop_up1" >
+<span class="button b-close">
+
+    <span>
+
+        X
+
+    </span>
+
+</span>
+    <input type="hidden" id="change_value1" name="public2" value="">
+    
+    <center><h3 id="public12" ></h3></center>
+    <br/>
+    <button id="add">Add To List</button>
+</div>
+
+
+<script>
+	
+		
+{
+	$(".shower").click(function() {
+		var a=$(this).data('message');
+		a='#'+a+'a';
+		
+		$(a).show("slow");
+	});
+}
+	$(".hider").click(function () {
+		var a=$(this).data('message');
+		a='#'+a+'a';
+		
+		$(a).hide(500);
+	});
+
+
+
+	
+
+	$('.word').click(function(){
+		
+		
+		var a=$(this).text();
+		
+		var b=$("#kick").html();
+		b=b+"<span id='word1'>"+a+"</span>"+" ";
+		
+		$('#kick').html(b);
+		
+	}).css({'cursor': 'pointer'});
+
+var k="";
+
+
+
+$('.my-button').bind('click', function(e) {
+                e.preventDefault();
+                k=$(this).text();
+                $("#public").html(k);
+                $("#change_value").val(k);
+                $('#element_to_pop_up').bPopup();
+}).css({'cursor': 'pointer'});
+
+
+
+$('#kick').bind('click', function(e) {
+			e.preventDefault();
+			var p=$(this).text();
+			$("#public12").html(p);
+			$("#change_value1").val(p);
+			var c=$(this).data("message");
+			
+			$("#last").val(c);
+			
+			$('#element_to_pop_up1').bPopup();
+			
+}).css({'cursor': 'pointer'});
+
+
+    $("#add").click(function(){
+    	
+    	ajax('change_add', ['public2','public21'], 'shadow_clone');
+    	setTimeout(refresh, 2000);
+    });
+
+function refresh()
+    {    location.reload();
+    }
+    
+    
+    
+    var _text = "";
+    $("#strike").click(function(){
+   	
+    
+     _text = $("#public").text();
+    StrikeThrough(0);      
+   
+    ajax('change', ['public1'], 'shadow_clone');           
+    setTimeout(refresh, 2000);
+    });
+
+function StrikeThrough(index) {
+    
+    if (index >= _text.length)
+        return false;
+    var sToStrike = _text.substr(0, index + 1);
+    
+    var sAfter = (index < (_text.length - 1)) ? _text.substr(index + 1, _text.length - index) : "";
+    
+    $("#public").html("<strike>" + sToStrike + "</strike>" + sAfter);
+    window.setTimeout(function() {
+        StrikeThrough(index + 1);
+    }, 50);
+}
+    
+
+</script>
+<div id="shadow_clone" style="display:none"></div>
+<style>
+    #element_to_pop_up { 
+    background-color:#fff;
+	border-radius:10px 10px 10px 10px;
+	box-shadow:0 0 25px 5px #999;
+	color:#111;
+	display:none;
+	min-width:450px;
+	padding:25px
+}
+
+#element_to_pop_up1 { 
+    background-color:#fff;
+	border-radius:10px 10px 10px 10px;
+	box-shadow:0 0 25px 5px #999;
+	color:#111;
+	display:none;
+	min-width:450px;
+	padding:25px
+}
+
+.b-close{
+    cursor:pointer;
+    position:absolute;
+    right:10px;
+    top:5px;
+}
+</style>

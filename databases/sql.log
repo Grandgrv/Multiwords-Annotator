@@ -1,0 +1,148 @@
+timestamp: 2013-12-01T16:39:15.859805
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512)
+);
+success!
+timestamp: 2013-12-01T16:39:15.987264
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2013-12-01T16:39:16.143524
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2013-12-01T16:39:16.258287
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2013-12-01T16:39:16.384191
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2013-12-01T16:39:16.506767
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2013-12-01T16:39:16.639115
+CREATE TABLE Uploads(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    file_filename CHAR(512),
+    saved_name CHAR(512),
+    ssf_saved_name CHAR(512),
+    file_upload CHAR(512),
+    ssf_file CHAR(512),
+    check_file INTEGER
+);
+success!
+timestamp: 2013-12-01T16:39:16.761392
+CREATE TABLE MWE(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(512),
+    mwe_type CHAR(512),
+    corr_file INTEGER
+);
+success!
+timestamp: 2013-12-01T17:11:13.772659
+ALTER TABLE Uploads ADD output_file CHAR(512);
+timestamp: 2013-12-01T17:34:09.675875
+ALTER TABLE MWE ADD mode_of CHAR(512);
+timestamp: 2013-12-01T17:34:09.790652
+ALTER TABLE MWE ADD part_of CHAR(512);
+timestamp: 2013-12-01T17:34:09.874126
+ALTER TABLE MWE ADD location_1 CHAR(512);
+timestamp: 2013-12-01T17:34:10.014622
+ALTER TABLE MWE ADD temporal CHAR(512);
+timestamp: 2013-12-01T17:34:10.117416
+ALTER TABLE MWE ADD type_of CHAR(512);
+timestamp: 2013-12-02T21:24:37.637375
+CREATE TABLE Bracketting(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    mwe_id INTEGER,
+    Expression CHAR(512),
+    file_id INTEGER,
+    user_id INTEGER
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!

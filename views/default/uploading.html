@@ -1,0 +1,16 @@
+{{extend 'layout.html'}}
+<link href="{{=URL('static','css/bootstrap.css')}}" rel="stylesheet"> 
+<div style="text-align:right"><button id="top" class="btn btn-danger">Go To Annotation Page</button></div>
+<br/>
+
+{{=form}}
+<br/>
+<div style="text-align:right"><button id="top1" class="btn btn-danger">Files List</button></div>
+<script>
+$("#top").click(function(){
+	document.location='{{=URL(r=request,f='homepage')}}';
+});
+$("#top1").click(function(){
+	document.location='{{=URL(r=request,f='file_list')}}';
+});
+</script>

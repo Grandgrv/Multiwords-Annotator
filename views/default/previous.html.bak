@@ -1,0 +1,7 @@
+{{extend 'layout.html'}}
+<h3>Bracketed Expressions for {{=session.a}}</h3>
+<hr />
+{{for i in a:}}
+{{=A(i.Expression,_href=URL('treeonly', vars=dict(exp=i.Expression))}}
+<br/>
+{{pass}}

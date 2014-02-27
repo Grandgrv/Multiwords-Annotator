@@ -1,0 +1,82 @@
+{{include 'web2py_ajax.html'}}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Name       : Uprightness 
+Description: A two-column, fixed-width design with dark color scheme.
+Version    : 1.0
+Released   : 20130920
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800" rel="stylesheet" />
+<link href="{{=URL('static','css/default.css')}}"  rel="stylesheet" type="text/css" media="all" />
+<link href="{{=URL('static','css/fonts.css')}}" rel="stylesheet" type="text/css" media="all" />
+
+<!--[if IE 6]><link href="default_ie6.css" rel="stylesheet" type="text/css" /><![endif]-->
+
+</head>
+<body>
+<div id="header-wrapper">
+	 
+	<div id="header" class="container">
+		<div id="logo">
+			<h2><a href="{{=URL(f='index')}}">Semantic Annotator Tool for MWE</a></h2>
+		</div>
+		
+		<div id="menu">
+			<ul>
+                {{block headings}}
+				<li class="current_page_item"><a href="{{=URL(f='index')}}" accesskey="1" title="">Homepage</a></li>
+				{{    if auth.is_logged_in():  }}
+                        <li><a href="{{=URL(f='user/logout')}}" accesskey="2" title="">Logout</a></li>
+            {{else:}}
+                                    <li><a href="{{=URL(f='user/login')}}" accesskey="2" title="">Login</a></li>
+            {{pass}}
+                {{if auth.is_logged_in():}}
+            <li><a href="#nogo" accesskey="3">Welcome {{=auth.user.first_name}}</a></li>
+                {{pass}} <br/>
+                {{end}}
+			</ul>
+		</div>
+	</div>
+</div>
+	<div id="wrapper">
+		<div id="page" class="container">
+            {{block center}}
+            {{include}}
+            {{end}}
+		</div>
+		<br/>
+		<br/>
+		<br/>
+	</div>
+	<div id="copyright" class="container">
+	
+	</div>
+	<script src="{{=URL('static','js/bootstrap.min.js')}}"></script>
+  <script src="{{=URL('static','js/web2py_bootstrap.js')}}"></script>
+  <!--[if lt IE 7 ]>
+      <script src="{{=URL('static','js/dd_belatedpng.js')}}"></script>
+      <script> DD_belatedPNG.fix('img, .png_bg'); //fix any <img> or .png_bg background-images </script>
+      <![endif]-->
+  
+  {{if response.google_analytics_id:}}
+  <script src="{{=URL('static','js/analytics.min.js')}}"></script>
+  <script type="text/javascript">
+  analytics.initialize({
+    'Google Analytics':{trackingId:'{{=response.google_analytics_id}}'} 
+  });</script>
+  {{pass}}
+  <script src="{{=URL('static','js/share.js',vars=dict(static=URL('static','images')))}}"></script>
+	
+</body>
+</html>

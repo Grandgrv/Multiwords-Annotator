@@ -1,0 +1,228 @@
+{{extend 'layout.html'}}
+<html>
+<link href="{{=URL('static','css/bootstrap.css')}}" rel="stylesheet"> 
+<style>
+    html 
+    {
+        overflow-y: scroll;
+    	overflow-x: scroll;
+    }
+    
+    .line 
+    {
+      position: absolute;
+      background-color: #000000;
+    }
+
+    .vertical 
+    { 
+       width: 1px;
+       height: 100px;
+    }
+    
+    
+    .button 
+    {
+   border-top: 1px solid #96d1f8;
+   background: #65a9d7;
+   background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#65a9d7));
+   background: -webkit-linear-gradient(top, #3e779d, #65a9d7);
+   background: -moz-linear-gradient(top, #3e779d, #65a9d7);
+   background: -ms-linear-gradient(top, #3e779d, #65a9d7);
+   background: -o-linear-gradient(top, #3e779d, #65a9d7);
+   padding: 10px 20px;
+   -webkit-border-radius: 8px;
+   -moz-border-radius: 8px;
+   border-radius: 8px;
+   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
+   box-shadow: rgba(0,0,0,1) 0 1px 0;
+   text-shadow: rgba(0,0,0,.4) 0 1px 0;
+   color: white;
+   font-size: 14px;
+   font-family: Georgia, serif;
+   text-decoration: none;
+   vertical-align: middle;
+   }
+.button:hover 
+   {
+   border-top-color: #28597a;
+   background: #28597a;
+   color: #ccc;
+   }
+.button:active 
+   {
+   border-top-color: #1b435e;
+   background: #1b435e;
+   }
+.button:disable 	
+   { 
+	background:white;
+    color:gray;
+   } 
+ div.tree
+    {
+        position:fixed
+    } 
+</style>
+<script>
+		var words = new Array();
+   		function findposition(numberofnodes, list, limit)
+        {
+            for(i = 2; i < numberofnodes - 1; i++) //labelling starts from 2
+            {
+            	x = "one" + i.toString();
+                a = document.getElementById(x);
+                k = 0;
+                //alert(a.innerHTML);
+                var mainstr = a.innerHTML.trim()            
+                    for(j = i + 1; j < numberofnodes - 1; j++)
+                    {
+                        y = "one" + j.toString();
+                        z = j + 1;
+                        k = "one" + z.toString();
+                        var d = document.getElementById(y);
+                        var e = document.getElementById(k);
+                        var str1 = d.innerHTML.trim()
+                        var str2 = e.innerHTML.trim()
+                        var str3 = str1 + ' ' + str2;
+                        var width = 0;
+                            //alert(str3);
+                        if (mainstr.localeCompare(str3) == 0)
+                        {
+                            //alert(str3 + "---" + a.innerHTML + ":" + a.innerHTML.localeCompare(str3));
+                            	width = d.offsetWidth;
+                                
+                                d.style.position = "absolute";
+                                d.style.left = a.getBoundingClientRect().left - width;
+                                
+                                e.style.position = "absolute";
+                                e.style.left = a.getBoundingClientRect().right;
+                            	
+                            break;
+                        }
+                        
+					}
+            }
+            placelines(list, limit, numberofnodes)
+        }
+        
+        function placelines(list, limit, numberofnodes)
+    	{
+        	i = 2, j = 0, linecounter = 0;
+            listarr = list.split(' ');
+            for(k = 0; i <= numberofnodes; k++)
+            { 
+                linevar = "line" + k.toString();
+                x = "one" + i.toString();
+                child = document.getElementById(x);
+                newvar = 0;
+                while(listarr[j + 1][newvar] >= '0' && listarr[j + 1][newvar] <= '9') //for getting the id of parent
+                {
+                	newvar++;
+                }
+                y = "one";
+                for(jj = 0; jj < newvar; jj++)
+                	y = y + listarr[j + 1][jj];
+                parent = document.getElementById(y);
+                i++;
+                j = j + 2;
+                dist =  (parent.getBoundingClientRect().bottom + child.getBoundingClientRect().top)/2;
+                putparentline((parent.getBoundingClientRect().left + parent.getBoundingClientRect().right)/2, parent.getBoundingClientRect().bottom, (parent.getBoundingClientRect().left + parent.getBoundingClientRect().right)/2, dist, linevar)
+                k++;
+                linevar = "line" + k.toString();
+                putchildline((child.getBoundingClientRect().left + child.getBoundingClientRect().right)/2, child.getBoundingClientRect().top, (child.getBoundingClientRect().left + child.getBoundingClientRect().right)/2, dist, linevar)
+                k++;
+                linevar = "line" + k.toString();
+                puthorizontalline((child.getBoundingClientRect().left + child.getBoundingClientRect().right)/2, dist, (parent.getBoundingClientRect().left + parent.getBoundingClientRect().right)/2,dist,linevar);
+            }
+            //alert(linecounter);	
+        }	
+        
+        function puthorizontalline(x1, y1, x2, y2, lineid)
+        {
+            distance = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+            line = document.getElementById(lineid);
+            line.style.width = distance;
+            line.style.height = "1px";
+            line.style.position = "absolute";
+            if(x2 > x1)
+            	line.style.left = x1;
+           	else
+           		line.style.left = x2;
+            line.style.top = y2;
+        }
+        
+        function putparentline(x1, y1, x2, y2, lineid)
+        {
+            distance = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+            line = document.getElementById(lineid);
+            line.style.height = distance;
+            line.style.position = "absolute";
+            line.style.left = x1;
+            line.style.top = y1;
+        }
+        
+        function putchildline(x1, y1, x2, y2, lineid)
+        {
+            distance = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+            line = document.getElementById(lineid);
+            line.style.height = distance;
+            line.style.position = "absolute";
+            line.style.left = x1;
+            line.style.top = y2;
+        }
+ 
+</script>
+<body onload="findposition('{{=variable}}', '{{=par}}', '{{=treelen}}')">
+<h3>Bracketting : {{=session.a}}</h3>
+{{import re}}
+{{e = re.sub(r"](?!])", r"] ", expression)}}
+<h4>Bracketed Expression: {{=e}}</h4>
+    <hr/>
+    <h3>Syntax Tree</h3>
+    <br/>
+ <div id="tree">   
+    {{xlevel = 0}}
+    {{parent = ""}}
+    {{from collections import deque}}
+        {{for i in range(levelnodes[1]/2 - levelnodes[0]/2):}}&nbsp;{{pass}}
+     <span id="one1">{{=b.data}}</span>
+    {{queue=deque()}}
+         
+    {{queue.append(b)}}
+    {{inqueue=1}}
+    {{while inqueue!=0:}}
+    {{ss=queue.popleft()}}
+    {{tree2.append(ss)}}
+    {{inqueue-=1}}
+    
+    {{if (xlevel != ss.level_no):}}
+        <br /><br /><br />{{parent = ss.parent}}
+    {{xlevel = ss.level_no}}
+    {{pass}}
+	{{if ss.parent != parent:}}
+    {{parent = ss.parent}}
+    {{if ss.level_no != 0:}}{{for i in range(15):}}&nbsp;{{pass}}{{pass}}
+    {{pass}}
+    {{if ss.level_no != 0:}}
+    {{for i in range(ss.beforespace):}}&nbsp;{{pass}}{{vartemp= 'one' + str(ss.idnum)}}<span id='{{=vartemp}}'>{{#=ss.beforespace}}{{=ss.data}}{{#=ss.afterspace}}</span>{{for i in range(ss.afterspace):}}&nbsp;{{pass}}
+    {{for i in range(5):}}&nbsp;{{pass}}
+    {{pass}}
+    {{for j in ss.children:}}
+    {{queue.append(j)}}
+    {{inqueue+=1}}
+    {{j.parent=ss}}
+        {{pass}}
+        {{pass}}
+     
+</div>
+<div>
+	 {{for i in range((treelen - 1)*3):}}
+     {{var = "line" + str(i)}}
+     <span id='{{=var}}' class="line vertical"></span>
+     {{pass}}
+</div>
+<br/>
+</body>
+</html>

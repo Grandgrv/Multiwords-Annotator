@@ -1,0 +1,3064 @@
+{{extend 'layout.html'}}
+<title>Semantic Annotations</title> 
+<link href="{{=URL('static','css/bootstrap.css')}}" rel="stylesheet"> 
+<script>
+  function enable_radio_buttons(parentid)
+  {
+    coursegrain = document.getElementById(parentid);
+    str1 = parentid.split(' ')
+    if (coursegrain.checked)
+    {
+      listof_fine_grains = document.getElementsByName(str1[1]);
+      for (i = 0; i < listof_fine_grains.length; i++)
+        listof_fine_grains[i].disabled=false; 
+    }
+    else
+    {
+      listof_fine_grains = document.getElementsByName(str1[1]);
+      for (i = 0; i < listof_fine_grains.length; i++)
+      {
+        if(listof_fine_grains[i].checked) 
+          listof_fine_grains[i].checked=false; 
+        listof_fine_grains[i].disabled=true; 
+      }
+    }
+  }
+</script>
+
+<body>
+
+<center><h3>Annotations For The MWE : {{=k}}</h3></center>
+    <div class="tabbable">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#pane1" data-toggle="tab">Semantic Annotation</a></li>
+          <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Paraphrasing<b class="caret"></b></a>
+          <ul class="dropdown-menu">
+            <li><a href="#pane2" data-toggle="tab">Virtual KeyBoard</a></li>
+            <li><a href="#pane3" data-toggle="tab">Phonetic KeyBoard</a></li>
+          </ul>
+        </li>
+        </ul>
+        <div class="tab-content">
+          <div id="pane1" class="tab-pane active">
+      <br />
+              <h4>Course Grain - Fine Grain Relations</h4><hr/>
+        <form name="myform" enctype="multipart/form-data" action="{{=URL('store_relations')}}" method="post">
+          <div class="panel-group" id="accordion">
+      {{k = 1}}
+      {{for i in sorted(coursegrain_dict):}}
+      {{if k%5 == 0:}}
+                        <div class="panel panel-warning">
+      {{elif k%5 == 1:}}
+        <div class="panel panel-primary">
+      {{elif k%5 == 2:}}
+        <div class="panel panel-success">
+      {{elif k%5 == 3:}}
+        <div class="panel panel-info">
+      {{elif k%5 == 4:}}
+        <div class="panel panel-danger">
+      {{pass}}
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+          {{strid = '#' + 'number' + str(k)}}
+                              <a data-toggle="collapse" data-parent="#accordion" href="{{=strid}}">{{=i}}</a>         
+                                 </h4>
+                            </div>
+        {{numberk = 'number' + str(k)}}
+                            <div id='{{=numberk}}' class="panel-collapse collapse">
+                    <div class="panel-body">
+          <ul style = "list-style-type:none">
+          <li><b><u>Course Grain</u></b></li>
+          {{parentid = 'parent ' + str(i)}}
+          <li><input type="checkbox" id="{{=parentid}}" name="course_grain" value="{{=str(i)}}" onclick="enable_radio_buttons('{{=parentid}}')">{{=i}}</li>
+  
+          {{if(len(coursegrain_dict[i]) > 0):}}
+          <li><b><u>Fine Grain</u></b></li>
+          {{pass}}
+                                  
+          {{for j in coursegrain_dict[i]:}}
+                                      <li><input type="radio" name="{{=str(i)}}" value="{{=str(j)}}" disabled>{{=j}}</li>
+          {{pass}}
+                                  </ul>
+          
+                              </div>
+            </div>
+          </div>
+        {{k = k + 1}}
+         {{pass}}
+        <br />
+        <center><input id="end" type="submit" value="Submit"></center>
+        
+                        </form>
+        </div>
+                          <br />
+            </div>
+      
+      
+            <div id="pane2" class="tab-pane">
+            <style type="Text/css">
+        div.unichars a
+        {
+            color:black;
+            font-size:20px;
+        }
+        div.extra button
+        {
+            width:100%;
+      text-decoration:none;
+      text-align:center;
+      text-shadow:1px 1px 0px #ffffff;
+        }
+        table.language
+        {
+            background-color:#E8E8E8 ;
+      color:black;
+          width:50%;
+            display:none;
+        }
+        #map0
+        {
+            display:table;
+        }
+      table.language td
+        {
+            text-align:center;
+            height:30px;
+        }
+        select.options
+        {
+            width: 200px;
+            height:40px;
+        }
+        
+    </style>
+    
+  <script type="text/javascript"> 
+    //for(i = 1; i < 2; i++)
+      
+
+        function funct(character) //for adding the clicked character to the textarea
+    {
+      //alert(character); 
+      t = document.getElementById("text");
+      t.value = t.value + character;
+      //document.write(t.value);
+    
+    }
+    
+    function show_keyboard()
+        {
+          var s = document.getElementById("lang");
+            try
+            {
+              for(i=0;i<=s.length;i++)
+              {
+              
+                  m = document.getElementById("map"+i).style;
+                  m.display = 'none';
+             }
+          }catch(er){}
+            m = document.getElementById("map"+s.value).style;
+        m.display = 'table';
+        }
+        
+        function reset()  //to delete all written text in the form
+    {
+        
+      t = document.getElementById("text");
+      t.value = '';
+    }
+    
+        function del() //to delete the last character on the form
+    {
+        
+      t = document.getElementById("text");
+      t.value = t.value.substring(0, (t.value.length*1 - 1));
+    
+    }
+  </script>
+    <form action="store_paraphrase" enctype="multipart/form-data" method="post">
+        <table class="search_table">
+  <tr>
+      <td><div class = "e">Enter Passage:</div></td>
+      <td> <textarea name="Passage" id="text" rows="10"></textarea></td>
+       </tr>
+          <tr>
+              <td>Select Language: </td>
+              <td><select id="lang" name="Lang" class="options" onchange="show_keyboard()">
+                            <option  value="0">हिन्दी Hindi</option>
+                            <option  value="1">English</option>
+                            <option  value="2">অসমীয়া (Assamese)</option>
+                            <option  value="3">বাংলা (Bengali)</option>
+                            <option  value="4">Bodo</option>
+                            <option  value="5">ગુજરાતી (Gujarati)</option>
+                            <option  value="6"> ಕನ್ನಡ (Kannada) </option>
+                            <option  value="7">کًش (Kashmiri)</option>
+                            <option  value="8">Konkani</option>
+                            <option  value="9">മലയാളം (Malayalam)</option>
+                            <option  value="10">Manipuri</option>
+                            <option  value="11">मराठी (Marathi)</option>
+                            <option  value="12"> नेपाली (Nepali)</option>
+                            <option  value="13">संस्कृतम् (Sanskrit)</option>
+                            <option  value="14"> தமிழ் (Tamil)</option>
+                            <option  value="15">తెలుగు (Telugu)</option>
+                            <option  value="16">Punjabi</option>
+                            <option  value="17">Urdu</option>
+                            <option  value="18">Oriya</option>
+              </select> </td>
+  </tr>
+  <tr>
+        <td><input type = "Submit" value = "Submit" /></td>
+   </tr>  
+        <tr>
+       	<td><input type="hidden" name="type" value="Normal" /></td>
+       </tr>
+  
+    </table>
+    </form>
+  <script>$('textarea').css('width','900px').css('height','150px');</script>
+  
+  <!-layouts for keyboards of various indian languages-->
+  
+  <table id="map0" class ="language"> 
+      <tbody>
+      <tr>
+                <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>
+      
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+  
+                                   
+<table id="map1" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>          
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('q');" href="javascript:;">q</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('w');" href="javascript:;">w</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('e');" href="javascript:;">e</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('r');" href="javascript:;">r</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('t');" href="javascript:;">t</a></div></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><div class="unichars" ><a  onClick="funct('y');" href="javascript:;">y</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('u');" href="javascript:;">u</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('i');" href="javascript:;">i</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('o');" href="javascript:;">o</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('p');" href="javascript:;">p</a></div></td>
+        
+            </tr>
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('a');" href="javascript:;">a</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('s');" href="javascript:;">s</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('d');" href="javascript:;">d</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('f');" href="javascript:;">f</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('g');" href="javascript:;">g</a></div></td>
+                <td><div class="unichars">&nbsp;</div></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><div class="unichars" ><a  onClick="funct('h');" href="javascript:;">h</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('j');" href="javascript:;">j</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('k');" href="javascript:;">k</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('l');" href="javascript:;">l</a></div></td>
+            </tr>
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('z');" href="javascript:;">z</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('x');" href="javascript:;">x</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('c');" href="javascript:;">c</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('v');" href="javascript:;">v</a></div></td>
+                <td><div class="unichars">&nbsp;</div></td>
+                <td><div class="unichars">&nbsp;</div></td>
+                <td><div class="unichars">&nbsp;</div></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><div class="unichars" ><a  onClick="funct('b');" href="javascript:;">b</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('n');" href="javascript:;">n</a></div></td>
+                <td><div class="unichars" ><a  onClick="funct('m');" href="javascript:;">m</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+
+      
+      <table id="map2" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>  
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('অ');" href="javascript:;">অ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('আ');" href="javascript:;">আ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ই');" href="javascript:;">ই</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঈ');" href="javascript:;">ঈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('উ');" href="javascript:;">উ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঊ');" href="javascript:;">ঊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('এ');" href="javascript:;">এ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঐ');" href="javascript:;">ঐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ও');" href="javascript:;">ও</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঔ');" href="javascript:;">ঔ</a></div></td>
+               <td><div class="unichars" ><a  onClick="funct('ঋ');" href="javascript:;">ঋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('া');" href="javascript:;">া</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ি');" href="javascript:;">ি</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ী');" href="javascript:;">ী</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ু');" href="javascript:;">ু</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ূ');" href="javascript:;">ূ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ৃ');" href="javascript:;">ৃ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ে');" href="javascript:;">ে</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ৈ');" href="javascript:;">ৈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ো');" href="javascript:;">ো</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ৌ');" href="javascript:;">ৌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ং');" href="javascript:;">ং</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঃ');" href="javascript:;">ঃ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ঁ');" href="javascript:;">ঁ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('্');" href="javascript:;">্</a></div></td>
+              
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ক');" href="javascript:;">ক</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('খ');" href="javascript:;">খ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('গ');" href="javascript:;">গ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঘ');" href="javascript:;">ঘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঙ');" href="javascript:;">ঙ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('চ');" href="javascript:;">চ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ছ');" href="javascript:;">ছ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('জ');" href="javascript:;">জ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঝ');" href="javascript:;">ঝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঞ');" href="javascript:;">ঞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ট');" href="javascript:;">ট</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঠ');" href="javascript:;">ঠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ড');" href="javascript:;">ড</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঢ');" href="javascript:;">ঢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ণ');" href="javascript:;">ণ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ত');" href="javascript:;">ত</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('থ');" href="javascript:;">থ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('দ');" href="javascript:;">দ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ধ');" href="javascript:;">ধ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ন');" href="javascript:;">ন</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('প');" href="javascript:;">প</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ফ');" href="javascript:;">ফ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ব');" href="javascript:;">ব</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ভ');" href="javascript:;">ভ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ম');" href="javascript:;">ম</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('য');" href="javascript:;">য</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ৰ');" href="javascript:;">ৰ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ল');" href="javascript:;">ল</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ৱ');" href="javascript:;">ৱ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('শ');" href="javascript:;">শ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ষ');" href="javascript:;">ষ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('স');" href="javascript:;">স</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('য়');" href="javascript:;">য়</a></div></td>
+<td><div class="unichars" ><a  onClick="funct('হ');" href="javascript:;">হ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ক্ষ');" href="javascript:;">ক্ষ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ড়');" href="javascript:;">ড়</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঢ়');" href="javascript:;">ঢ়</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+     
+            
+      <table id="map3" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>   
+
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('অ');" href="javascript:;">অ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('আ');" href="javascript:;">আ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ই');" href="javascript:;">ই</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঈ');" href="javascript:;">ঈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('উ');" href="javascript:;">উ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঊ');" href="javascript:;">ঊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('এ');" href="javascript:;">এ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঐ');" href="javascript:;">ঐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ও');" href="javascript:;">ও</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঔ');" href="javascript:;">ঔ</a></div></td>
+               <td><div class="unichars" ><a  onClick="funct('ঋ');" href="javascript:;">ঋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('া');" href="javascript:;">া</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ি');" href="javascript:;">ি</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ী');" href="javascript:;">ী</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ু');" href="javascript:;">ু</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ূ');" href="javascript:;">ূ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ৃ');" href="javascript:;">ৃ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ে');" href="javascript:;">ে</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ৈ');" href="javascript:;">ৈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ো');" href="javascript:;">ো</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ৌ');" href="javascript:;">ৌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ং');" href="javascript:;">ং</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঃ');" href="javascript:;">ঃ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ঁ');" href="javascript:;">ঁ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('্');" href="javascript:;">্</a></div></td>
+              
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ক');" href="javascript:;">ক</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('খ');" href="javascript:;">খ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('গ');" href="javascript:;">গ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঘ');" href="javascript:;">ঘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঙ');" href="javascript:;">ঙ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('চ');" href="javascript:;">চ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ছ');" href="javascript:;">ছ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('জ');" href="javascript:;">জ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঝ');" href="javascript:;">ঝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঞ');" href="javascript:;">ঞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ট');" href="javascript:;">ট</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ঠ');" href="javascript:;">ঠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ড');" href="javascript:;">ড</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঢ');" href="javascript:;">ঢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ণ');" href="javascript:;">ণ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ত');" href="javascript:;">ত</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('থ');" href="javascript:;">থ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('দ');" href="javascript:;">দ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ধ');" href="javascript:;">ধ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ন');" href="javascript:;">ন</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('প');" href="javascript:;">প</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ফ');" href="javascript:;">ফ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ব');" href="javascript:;">ব</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ভ');" href="javascript:;">ভ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ম');" href="javascript:;">ম</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('য');" href="javascript:;">য</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('র');" href="javascript:;">র</a></div></td> 
+              <td><div class="unichars" ><a  onClick="funct('ল');" href="javascript:;">ল</a></div></td>
+
+
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('শ');" href="javascript:;">শ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ষ');" href="javascript:;">ষ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('স');" href="javascript:;">স</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('হ');" href="javascript:;">হ</a></div></td>
+<td><div class="unichars" ><a  onClick="funct('ক্ষ');" href="javascript:;">ক্ষ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('ৎ');" href="javascript:;">ৎ</a></div></td>
+
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+
+             
+              <td><div class="unichars" ><a  onClick="funct('ড়');" href="javascript:;">ড়</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ঢ়');" href="javascript:;">ঢ়</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+
+      </tbody>
+    </table>
+
+  
+      <table id="map4" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>   
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>  
+      
+     
+     <table id="map5" class ="language">  
+      <tbody>
+      <tr>
+                <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>   
+        <tr>
+                <td><div class="unichars" ><a  onClick="funct('અ');" href="javascript:;">અ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('આ');" href="javascript:;">આ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઈ');" href="javascript:;">ઇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઇ');" href="javascript:;">ઈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઉ');" href="javascript:;">ઉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઊ');" href="javascript:;">ઊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('એ');" href="javascript:;">એ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ઐ');" href="javascript:;">ઐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઓ');" href="javascript:;">ઓ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઔ');" href="javascript:;">ઔ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं()</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः()</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('એ');" href="javascript:;">ઍ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ઓ');" href="javascript:;">ઑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઋ');" href="javascript:;">ઋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ૂ');" href="javascript:;">ૂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ા');" href="javascript:;">ા</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('િ');" href="javascript:;">િ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ી');" href="javascript:;">ી</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ુ');" href="javascript:;">ુ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ૂ');" href="javascript:;">ૂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ે');" href="javascript:;">ે</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ૈ');" href="javascript:;">ૈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ો');" href="javascript:;">ો</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ૌ');" href="javascript:;">ૌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ં');" href="javascript:;">ં</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઃ');" href="javascript:;">ઃ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ૅ');" href="javascript:;">ૅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ()</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ૃ');" href="javascript:;">ૃ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ક');" href="javascript:;">ક</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ખ');" href="javascript:;">ખ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ગ');" href="javascript:;">ગ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઘ');" href="javascript:;">ઘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ડ');" href="javascript:;">ડ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ચ');" href="javascript:;">ચ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('છ');" href="javascript:;">છ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('જ');" href="javascript:;">જ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ઝ');" href="javascript:;">ઝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઞ');" href="javascript:;">ઞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ટ');" href="javascript:;">ટ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ઠ');" href="javascript:;">ઠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ડ');" href="javascript:;">ડ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ઢ');" href="javascript:;">ઢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ણ');" href="javascript:;">ણ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ત');" href="javascript:;">ત</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('થ');" href="javascript:;">થ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('દ');" href="javascript:;">દ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ધ');" href="javascript:;">ધ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ન');" href="javascript:;">ન</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('પ');" href="javascript:;">પ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ફ');" href="javascript:;">ફ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('બ');" href="javascript:;">બ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ભ');" href="javascript:;">ભ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('મ');" href="javascript:;">મ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ય');" href="javascript:;">ય</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ર');" href="javascript:;">ર</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('લ');" href="javascript:;">લ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('વ');" href="javascript:;">વ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('શ');" href="javascript:;">શ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ષ');" href="javascript:;">ષ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('સ');" href="javascript:;">સ</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('હ');" href="javascript:;">હ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ળ');" href="javascript:;">ળ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('ત્ર');" href="javascript:;">ત્ર</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('ર્' + '\u200D');" href="javascript:;">ર્&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('જ્ઞ');" href="javascript:;">જ્ઞ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ક્ષ');" href="javascript:;">ક્ષ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('શ્ર');" href="javascript:;">શ્ર</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ()</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('઼');" href="javascript:;">઼</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+     
+      <table id="map6" class ="language"> 
+      <tbody>
+      <tr>
+                <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr> 
+         <tr>
+                <td><div class="unichars" ><a  onClick="funct('ಅ');" href="javascript:;">ಅ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಅ');" href="javascript:;">ಅ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಇ');" href="javascript:;">ಇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಈ');" href="javascript:;">ಈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಉ');" href="javascript:;">ಉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಊ');" href="javascript:;">ಊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಊ');" href="javascript:;">ಊ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಋ');" href="javascript:;">ಋ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೠ');" href="javascript:;">ೠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಎ');" href="javascript:;">ಎ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಏ');" href="javascript:;">ಏ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಐ');" href="javascript:;">ಐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಒ');" href="javascript:;">ಒ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಓ');" href="javascript:;">ಓ</a></div></td>
+
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ೊ');" href="javascript:;">ೊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೃ');" href="javascript:;">ೃ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೌ');" href="javascript:;">ೌ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ೈ');" href="javascript:;">ೈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಾ');" href="javascript:;">ಾ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೀ');" href="javascript:;">ೀ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೂ');" href="javascript:;">ೂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೋ');" href="javascript:;">ೋ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ೇ');" href="javascript:;">ೇ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('್');" href="javascript:;">್</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ು');" href="javascript:;">ು</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಿ');" href="javascript:;">ಿ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ೆ');" href="javascript:;">ೆ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ಂ');" href="javascript:;">ಂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಃ');" href="javascript:;">ಃ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಕ');" href="javascript:;">ಕ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಖ');" href="javascript:;">ಖ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಗ');" href="javascript:;">ಗ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಘ');" href="javascript:;">ಘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಙ');" href="javascript:;">ಙ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಚ');" href="javascript:;">ಚ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಛ');" href="javascript:;">ಛ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಜ');" href="javascript:;">ಜ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಝ');" href="javascript:;">ಝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಞ');" href="javascript:;">ಞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಟ');" href="javascript:;">ಟ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಠ');" href="javascript:;">ಠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಡ');" href="javascript:;">ಡ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಢ');" href="javascript:;">ಢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಣ');" href="javascript:;">ಣ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ತ');" href="javascript:;">ತ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಥ');" href="javascript:;">ಥ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ದ');" href="javascript:;">ದ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಧ');" href="javascript:;">ಧ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ನ');" href="javascript:;">ನ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಪ');" href="javascript:;">ಪ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಫ');" href="javascript:;">ಫ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಬ');" href="javascript:;">ಬ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಭ');" href="javascript:;">ಭ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಮ');" href="javascript:;">ಮ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಯ');" href="javascript:;">ಯ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ರ');" href="javascript:;">ರ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಲ');" href="javascript:;">ಲ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ವ');" href="javascript:;">ವ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಶ');" href="javascript:;">ಶ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ಷ');" href="javascript:;">ಷ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಸ');" href="javascript:;">ಸ</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+ <td><div class="unichars" ><a  onClick="funct('ೞ');" href="javascript:;">ೞ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಹ');" href="javascript:;">ಹ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ಳ');" href="javascript:;">ಳ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>     
+
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      </tbody>
+    </table>
+
+     
+      <table id="map7" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>  
+         <tr>
+                <td><div class="unichars" ><a  onClick="funct('ذ');" href="javascript:;">ذ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ڈ');" href="javascript:;">ڈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('د');" href="javascript:;">د</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('خ');" href="javascript:;">خ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ح');" href="javascript:;">ح</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('چ');" href="javascript:;">چ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ج');" href="javascript:;">ج</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ٽ');" href="javascript:;">ٽ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ٹ');" href="javascript:;">ٹ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ٺ');" href="javascript:;">ٺ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('پ');" href="javascript:;">پ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ب');" href="javascript:;">ب</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ع');" href="javascript:;">ع</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ظ');" href="javascript:;">ظ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ط');" href="javascript:;">ط</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ض');" href="javascript:;">ض</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ص');" href="javascript:;">ص</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ش');" href="javascript:;">ش</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('س');" href="javascript:;">س</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ژ');" href="javascript:;">ژ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ز');" href="javascript:;">ز</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ڑ');" href="javascript:;">ڑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ر');" href="javascript:;">ر</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ے');" href="javascript:;">ے</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ھ');" href="javascript:;">ھ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('و');" href="javascript:;">و</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ن');" href="javascript:;">ن</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('م');" href="javascript:;">م</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ل');" href="javascript:;">ل</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('گ');" href="javascript:;">گ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ك');" href="javascript:;">ك</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ق');" href="javascript:;">ق</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ف');" href="javascript:;">ف</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('غ');" href="javascript:;">غ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ۄ');" href="javascript:;">ۄ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('و');" href="javascript:;">و</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ۆ');" href="javascript:;">ۆ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ۇ');" href="javascript:;">ۇ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ٱ');" href="javascript:;">ٱ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ٳ');" href="javascript:;">ٳ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('إ');" href="javascript:;">إ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ى');" href="javascript:;">ى</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ٳ');" href="javascript:;">ٳ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ٲ');" href="javascript:;">ٲ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('أ');" href="javascript:;">أ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('آ');" href="javascript:;">آ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ـ');" href="javascript:;">ـ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('؟');" href="javascript:;">؟</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('٩');" href="javascript:;">٩</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('٨');" href="javascript:;">٨</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('٧');" href="javascript:;">٧</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('٦');" href="javascript:;">٦</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('٥');" href="javascript:;">٥</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('٤');" href="javascript:;">٤</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('٣');" href="javascript:;">٣</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('٢');" href="javascript:;">٢</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('١');" href="javascript:;">١</a></div></td>
+
+
+
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+          </tr>
+
+      </tbody>
+    </table>
+     
+     <table id="map8" class ="language">  
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr> 
+         <tr>
+                <td><div class="unichars" ><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+     
+      <table id="map9" class ="language"> 
+      <tbody>
+      <tr>
+                <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>     
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('അ');" href="javascript:;">അ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ആ');" href="javascript:;">ആ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഇ');" href="javascript:;">ഇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഈ');" href="javascript:;">ഈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഉ');" href="javascript:;">ഉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഊ');" href="javascript:;">ഊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('എ');" href="javascript:;">എ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ഏ');" href="javascript:;">ഏ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഐ');" href="javascript:;">ഐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഒ');" href="javascript:;">ഒ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഓ');" href="javascript:;">ഓ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഔ');" href="javascript:;">ഔ</a></div></td>
+             
+          
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ൃ');" href="javascript:;">ൃ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ൌ');" href="javascript:;">ൌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ൈ');" href="javascript:;">ൈ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ാ');" href="javascript:;">ാ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ീ');" href="javascript:;">ീ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ൂ');" href="javascript:;">ൂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ോ');" href="javascript:;">ോ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('േ');" href="javascript:;">േ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('്');" href="javascript:;">്</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ി');" href="javascript:;">ി</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ു');" href="javascript:;">ു</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('െ');" href="javascript:;">െ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ം');" href="javascript:;">ം</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('്ര');" href="javascript:;">്ര</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഃ');" href="javascript:;">ഃ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ക');" href="javascript:;">ക</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഖ');" href="javascript:;">ഖ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഗ');" href="javascript:;">ഗ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഘ');" href="javascript:;">ഘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ങ');" href="javascript:;">ങ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ച');" href="javascript:;">ച</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഛ');" href="javascript:;">ഛ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ജ');" href="javascript:;">ജ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ഝ');" href="javascript:;">ഝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഞ');" href="javascript:;">ഞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ട');" href="javascript:;">ട</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ഠ');" href="javascript:;">ഠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഡ');" href="javascript:;">ഡ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഢ');" href="javascript:;">ഢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ണ');" href="javascript:;">ണ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ത');" href="javascript:;">ത</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഥ');" href="javascript:;">ഥ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ദ');" href="javascript:;">ദ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ധ');" href="javascript:;">ധ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ന');" href="javascript:;">ന</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('പ');" href="javascript:;">പ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഫ');" href="javascript:;">ഫ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ബ');" href="javascript:;">ബ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഭ');" href="javascript:;">ഭ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('മ');" href="javascript:;">മ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('യ');" href="javascript:;">യ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ര');" href="javascript:;">ര</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ല');" href="javascript:;">ല</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('വ');" href="javascript:;">വ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ശ');" href="javascript:;">ശ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ഷ');" href="javascript:;">ഷ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('സ');" href="javascript:;">സ</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ഹ');" href="javascript:;">ഹ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ള');" href="javascript:;">ള</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('ഴ');" href="javascript:;">ഴ</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('റ' + '\u200D');" href="javascript:;">റ&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ശ്');" href="javascript:;">ശ്</a></div></td>
+
+             
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+      </tbody>
+    </table>
+     
+      <table id="map10" class ="language">  
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr> 
+          <tr>
+                <td><div class="unichars" ><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+          
+         
+     <table id="map11" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>      
+
+            <tr>
+              <td><div class="unichars"><a  onClick="funct('ॊ');" href="javascript:;">ॊ</a></div></td>
+        <td><div class="unichars"><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('्र');" href="javascript:;">्र</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('र्');" href="javascript:;">र्</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऒ');" href="javascript:;">ऒ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              </tr><tr>
+        <td><div class="unichars"><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('.');" href="javascript:;">.</a></div></td>
+        </tr><tr>
+        
+        <td><div class="unichars"><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऱ');" href="javascript:;">ऱ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars"><a  onClick="funct(',');" href="javascript:;">,</a></div></td>
+              
+              
+        </tr><tr>
+        <td><div class="unichars"><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऎ');" href="javascript:;">ऎ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              </tr><tr>
+        <td><div class="unichars"><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऩ');" href="javascript:;">ऩ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ऴ');" href="javascript:;">ऴ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('य़');" href="javascript:;">य़</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ॆ');" href="javascript:;">ॆ</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+              <td><div class="unichars"><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+ 
+  </tr><tr>
+      </tbody>
+    </table>
+        
+          
+      <table id="map12" class ="language">  
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>          
+          <tr>
+                <td><div class="unichars" ><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>   
+                
+                     
+      <table id="map13" class ="language">  
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('अ');" href="javascript:;">अ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('आ');" href="javascript:;">आ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('इ');" href="javascript:;">इ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ई');" href="javascript:;">ई</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('उ');" href="javascript:;">उ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऊ');" href="javascript:;">ऊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ए');" href="javascript:;">ए</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऐ');" href="javascript:;">ऐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ओ');" href="javascript:;">ओ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('औ');" href="javascript:;">औ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अं');" href="javascript:;">अं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('अः');" href="javascript:;">अः</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऍ');" href="javascript:;">ऍ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ऑ');" href="javascript:;">ऑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ऋ');" href="javascript:;">ऋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('्');" href="javascript:;">्</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ा');" href="javascript:;">ा</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ि');" href="javascript:;">ि</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ी');" href="javascript:;">ी</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ु');" href="javascript:;">ु</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ू');" href="javascript:;">ू</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('े');" href="javascript:;">े</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ै');" href="javascript:;">ै</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ो');" href="javascript:;">ो</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ौ');" href="javascript:;">ौ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ं');" href="javascript:;">ं</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ः');" href="javascript:;">ः</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ॅ');" href="javascript:;">ॅ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ॉ');" href="javascript:;">ॉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ृ');" href="javascript:;">ृ</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('क');" href="javascript:;">क</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ख');" href="javascript:;">ख</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ग');" href="javascript:;">ग</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('घ');" href="javascript:;">घ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ङ');" href="javascript:;">ङ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('च');" href="javascript:;">च</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('छ');" href="javascript:;">छ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज');" href="javascript:;">ज</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('झ');" href="javascript:;">झ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ञ');" href="javascript:;">ञ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ट');" href="javascript:;">ट</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ठ');" href="javascript:;">ठ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ड');" href="javascript:;">ड</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ढ');" href="javascript:;">ढ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ण');" href="javascript:;">ण</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('त');" href="javascript:;">त</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('थ');" href="javascript:;">थ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('द');" href="javascript:;">द</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ध');" href="javascript:;">ध</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('न');" href="javascript:;">न</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('प');" href="javascript:;">प</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('फ');" href="javascript:;">फ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ब');" href="javascript:;">ब</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('भ');" href="javascript:;">भ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('म');" href="javascript:;">म</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('य');" href="javascript:;">य</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('र');" href="javascript:;">र</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ल');" href="javascript:;">ल</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('व');" href="javascript:;">व</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('श');" href="javascript:;">श</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ष');" href="javascript:;">ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('स');" href="javascript:;">स</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>
+                            
+                        
+     <table id="map14" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>                                
+           <tr>
+                <td><div class="unichars" ><a  onClick="funct('அ');" href="javascript:;">அ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ஆ');" href="javascript:;">ஆ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('இ');" href="javascript:;">இ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஈ');" href="javascript:;">ஈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('உ');" href="javascript:;">உ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஊ');" href="javascript:;">ஊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('எ');" href="javascript:;">எ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ஏ');" href="javascript:;">ஏ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஐ');" href="javascript:;">ஐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஒ');" href="javascript:;">ஒ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஓ');" href="javascript:;">ஓ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஒள');" href="javascript:;">ஒள</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஃ');" href="javascript:;">ஃ</a></div></td>
+
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ொ');" href="javascript:;">ொ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ௌ');" href="javascript:;">ௌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ை');" href="javascript:;">ை</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ா');" href="javascript:;">ா</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ீ');" href="javascript:;">ீ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ூ');" href="javascript:;">ூ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ோ');" href="javascript:;">ோ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ே');" href="javascript:;">ே</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('்');" href="javascript:;">்</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ி');" href="javascript:;">ி</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ு');" href="javascript:;">ு</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ெ');" href="javascript:;">ெ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ஶ்ர');" href="javascript:;">ஶ்ர</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ஶ்ர');" href="javascript:;">ஶ்ர</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('க');" href="javascript:;">க</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ங்');" href="javascript:;">ங்</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ச');" href="javascript:;">ச</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஞ');" href="javascript:;">ஞ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ட');" href="javascript:;">ட</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ண');" href="javascript:;">ண</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('த');" href="javascript:;">த</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ந');" href="javascript:;">ந</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ப');" href="javascript:;">ப</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ம');" href="javascript:;">ம</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ய');" href="javascript:;">ய</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ர');" href="javascript:;">ர</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ல');" href="javascript:;">ல</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('வ');" href="javascript:;">வ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ழ');" href="javascript:;">ழ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ள');" href="javascript:;">ள</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ற');" href="javascript:;">ற</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ன');" href="javascript:;">ன</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஜ');" href="javascript:;">ஜ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஸ');" href="javascript:;">ஸ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஷ');" href="javascript:;">ஷ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஹ');" href="javascript:;">ஹ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('க்ஷ');" href="javascript:;">க்ஷ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஔ');" href="javascript:;">ஔ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ங');" href="javascript:;">ங</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ஶ');" href="javascript:;">ஶ</a></div></td>
+              <td></td>
+              <td></td>
+
+              <td></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" >&nbsp;</div></td>
+
+              <td><div class="unichars" >&nbsp;</div></td>
+              <td><div class="unichars" >&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+                <td><div class="unichars" >&nbsp;</div></td>
+              <td><div class="unichars" >&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('त्र');" href="javascript:;">त्र</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('र्' + '\u200D');" href="javascript:;">र्&zwj; </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ज्ञ');" href="javascript:;">ज्ञ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('क्ष');" href="javascript:;">क्ष</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('श्र');" href="javascript:;">श्र</a></div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('़');" href="javascript:;">़</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+     </tbody>
+    </table>                                         
+                                                                  
+                                                                                
+                                                                                                            
+     <table id="map15" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>     
+          <tr>
+                <td><div class="unichars" ><a  onClick="funct('అ');" href="javascript:;">అ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ఆ');" href="javascript:;">ఆ</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('ఇ');" href="javascript:;"> ఇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఈ');" href="javascript:;">ఈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఉ');" href="javascript:;">ఉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఊ');" href="javascript:;">ఊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఎ');" href="javascript:;">ఎ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ఏ');" href="javascript:;">ఏ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఒ');" href="javascript:;">ఒ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఓ');" href="javascript:;">ఓ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('అం');" href="javascript:;">అం</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('అ:');" href="javascript:;">అ:</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఐ');" href="javascript:;">ఐ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ఋ');" href="javascript:;">ఋ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ౠ');" href="javascript:;">ౠ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ొ');" href="javascript:;">ొ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ృ');" href="javascript:;">ృ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ౌ');" href="javascript:;">ౌ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ై');" href="javascript:;">ై</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ా');" href="javascript:;">ా</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ీ');" href="javascript:;">ీ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ూ');" href="javascript:;">ూ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ో');" href="javascript:;">ో</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ే');" href="javascript:;">ే</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('్');" href="javascript:;">్</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ి');" href="javascript:;">ి</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ు');" href="javascript:;">ు</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ె');" href="javascript:;">ె</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ం');" href="javascript:;">ం</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ః');" href="javascript:;">ః</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('క');" href="javascript:;">క</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఖ');" href="javascript:;">ఖ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('గ');" href="javascript:;">గ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఘ');" href="javascript:;">ఘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ఙ');" href="javascript:;">ఙ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('చ');" href="javascript:;">చ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఛ');" href="javascript:;">ఛ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('జ');" href="javascript:;">జ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ఝ');" href="javascript:;">ఝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఞ');" href="javascript:;">ఞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ట');" href="javascript:;">ట</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ఠ');" href="javascript:;">ఠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('డ');" href="javascript:;">డ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఢ');" href="javascript:;">ఢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ణ');" href="javascript:;">ణ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('త');" href="javascript:;">త</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('థ');" href="javascript:;">థ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ద');" href="javascript:;">ద</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ధ');" href="javascript:;">ధ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('న');" href="javascript:;">న</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ప');" href="javascript:;">ప</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఫ');" href="javascript:;">ఫ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('బ');" href="javascript:;">బ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('భ');" href="javascript:;">భ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('మ');" href="javascript:;">మ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('య');" href="javascript:;">య</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ర');" href="javascript:;">ర</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఱ');" href="javascript:;">ఱ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ల');" href="javascript:;">ల</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ళ');" href="javascript:;">ళ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('వ');" href="javascript:;">వ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('శ');" href="javascript:;">శ</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ష');" href="javascript:;">ష</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('స');" href="javascript:;">స</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('హ');" href="javascript:;">హ</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('క్ష');" href="javascript:;">క్ష</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('జ్ఞ');" href="javascript:;">జ్ఞ</a></div></td>
+
+         
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('్రర');" href="javascript:;">్రర</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ఔ');" href="javascript:;">ఔ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+
+      </tbody>
+    </table>   
+          
+                
+                          
+     <table id="map16" class ="language"> 
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>
+
+            <tr>
+                <td><div class="unichars" ><a  onClick="funct('ਅ');" href="javascript:;">ਅ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਆ');" href="javascript:;">ਆ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਇ');" href="javascript:;">ਇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਈ');" href="javascript:;">ਈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਉ');" href="javascript:;">ਉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਊ');" href="javascript:;">ਊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਏ');" href="javascript:;">ਏ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਐ');" href="javascript:;">ਐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਓ');" href="javascript:;">ਓ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਔ');" href="javascript:;">ਔ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ੌ');" href="javascript:;">ੌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ੈ');" href="javascript:;">ੈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਾ');" href="javascript:;">ਾ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ੀ');" href="javascript:;">ੀ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ੂ');" href="javascript:;">ੂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('਼');" href="javascript:;">਼</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ੋ');" href="javascript:;">ੋ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ੇ');" href="javascript:;">ੇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('੍');" href="javascript:;">੍</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਿ');" href="javascript:;">ਿ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ੁ');" href="javascript:;">ੁ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ੰ');" href="javascript:;">ੰ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('ੱ');" href="javascript:;">ੱ</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ਂ');" href="javascript:;">ਂ</a></div></td>
+              
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਕ');" href="javascript:;">ਕ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਖ');" href="javascript:;">ਖ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਗ');" href="javascript:;">ਗ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਘ');" href="javascript:;">ਘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਙ');" href="javascript:;">ਙ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਚ');" href="javascript:;">ਚ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਛ');" href="javascript:;">ਛ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਜ');" href="javascript:;">ਜ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਝ');" href="javascript:;">ਝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਞ');" href="javascript:;">ਞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਟ');" href="javascript:;">ਟ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਠ');" href="javascript:;">ਠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਡ');" href="javascript:;">ਡ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਢ');" href="javascript:;">ਢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਣ');" href="javascript:;">ਣ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਤ');" href="javascript:;">ਤ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਥ');" href="javascript:;">ਥ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਦ');" href="javascript:;">ਦ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਧ');" href="javascript:;">ਧ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਨ');" href="javascript:;">ਨ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਪ');" href="javascript:;">ਪ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਫ');" href="javascript:;">ਫ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਬ');" href="javascript:;">ਬ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਭ');" href="javascript:;">ਭ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਮ');" href="javascript:;">ਮ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਯ');" href="javascript:;">ਯ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਰ');" href="javascript:;">ਰ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਲ');" href="javascript:;">ਲ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਵ');" href="javascript:;">ਵ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਸ਼');" href="javascript:;">ਸ਼</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ਸ');" href="javascript:;">ਸ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ਹ');" href="javascript:;">ਹ</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ह');" href="javascript:;">ह</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ळ');" href="javascript:;">ळ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+      </tbody>
+    </table>
+
+
+          
+          
+          
+          
+          
+          
+    <table id="map18" class ="language">
+      <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+          </tr>
+            <tr>
+               
+                <td><div class="unichars" ><a  onClick="funct('ଅ');" href="javascript:;">ଅ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଆ');" href="javascript:;">ଆ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଇ');" href="javascript:;">ଇ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଈ');" href="javascript:;">ଈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଉ');" href="javascript:;">ଉ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଊ');" href="javascript:;">ଊ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଏ');" href="javascript:;">ଏ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଐ');" href="javascript:;">ଐ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଓ');" href="javascript:;">ଓ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଔ');" href="javascript:;">ଔ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଋ');" href="javascript:;">ଋ</a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('ୃ');" href="javascript:;">ୃ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ୌ');" href="javascript:;">ୌ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ୈ');" href="javascript:;">ୈ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ା');" href="javascript:;">ା</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ୀ');" href="javascript:;">ୀ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ୂ');" href="javascript:;">ୂ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('଼');" href="javascript:;">଼</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ୋ');" href="javascript:;">ୋ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('େ');" href="javascript:;">େ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('୍');" href="javascript:;">୍</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ି');" href="javascript:;">ି</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ୁ');" href="javascript:;">ୁ</a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('୍ର');" href="javascript:;">୍ର</a></div></td>
+          <td><div class="unichars" ><a  onClick="funct('ଃ');" href="javascript:;">ଃ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('୰');" href="javascript:;">୰</a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('କ');" href="javascript:;">କ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଖ');" href="javascript:;">ଖ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଗ');" href="javascript:;">ଗ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଘ');" href="javascript:;">ଘ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଙ');" href="javascript:;">ଙ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଚ');" href="javascript:;">ଚ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଛ');" href="javascript:;">ଛ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଜ');" href="javascript:;">ଜ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଝ');" href="javascript:;">ଝ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଞ');" href="javascript:;">ଞ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଟ');" href="javascript:;">ଟ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଠ');" href="javascript:;">ଠ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଡ');" href="javascript:;">ଡ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଢ');" href="javascript:;">ଢ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଣ');" href="javascript:;">ଣ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ତ');" href="javascript:;">ତ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଥ');" href="javascript:;">ଥ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଦ');" href="javascript:;">ଦ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଧ');" href="javascript:;">ଧ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ନ');" href="javascript:;">ନ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ପ');" href="javascript:;">ପ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଫ');" href="javascript:;">ଫ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ବ');" href="javascript:;">ବ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଭ');" href="javascript:;">ଭ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ମ');" href="javascript:;">ମ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଯ');" href="javascript:;">ଯ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ର');" href="javascript:;">ର</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଳ');" href="javascript:;">ଳ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ୱ');" href="javascript:;">ୱ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଶ');" href="javascript:;">ଶ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଷ');" href="javascript:;">ଷ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ସ');" href="javascript:;">ସ</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ହ');" href="javascript:;">ହ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('କ୍ଷ');" href="javascript:;">କ୍ଷ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+      <tr>
+
+              <td><div class="unichars" ><a  onClick="funct('ୟ');" href="javascript:;">ୟ</a></div></td>
+            <td><div class="unichars" ><a  onClick="funct('ଲ');" href="javascript:;">ଲ </a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଡ଼');" href="javascript:;">ଡ଼</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ଢ଼');" href="javascript:;">ଢ଼</a></div></td>
+              
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars" ><a  onClick="funct('ँ');" href="javascript:;">ँ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ଂ');" href="javascript:;">ଂ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('।');" href="javascript:;">।</a></div></td>
+            </tr>
+      </tbody>
+    </table>
+      
+         <table id="map17" class ="language">
+          <tbody>
+      <tr>
+                 <td colspan = '5'><div class = "extra"><button onclick="funct(' ');" class="btn btn-primary">Space</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="del();" class="btn btn-warning">Backpace</button></div></td>
+        <td colspan = '5'><div class = "extra"><button onclick="reset();" class="btn btn-danger">Reset</button></div></td>
+              </tr>
+                <tr>
+                <td><div class="unichars" ><a  onClick="funct('ق');" href="javascript:;">ق</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('و');" href="javascript:;">و</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ع');" href="javascript:;">ع</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ر');" href="javascript:;">ر</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ت');" href="javascript:;">ت</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ے');" href="javascript:;">ے</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ء');" href="javascript:;">ء</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ی');" href="javascript:;">ی</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ہ');" href="javascript:;">ہ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('پ');" href="javascript:;">پ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+
+        </tr>
+            <tr>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ؤ');" href="javascript:;">ؤ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ڑ');" href="javascript:;">ڑ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ٹ');" href="javascript:;">ٹ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+    <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+        <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+
+
+      </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ا');" href="javascript:;">ا</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('س');" href="javascript:;">س</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('د');" href="javascript:;">د</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ف');" href="javascript:;">ف</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('گ');" href="javascript:;">گ</a></div></td>
+       <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ح');" href="javascript:;">ح</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ج');" href="javascript:;">ج</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ک');" href="javascript:;">ک</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ل');" href="javascript:;">ل</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ص');" href="javascript:;">ص</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ڈ');" href="javascript:;">ڈ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('غ');" href="javascript:;">غ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ھ');" href="javascript:;">ھ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ض');" href="javascript:;">ض</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('خ');" href="javascript:;">خ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('');" href="javascript:;"></a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ز');" href="javascript:;">ز</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ش');" href="javascript:;">ش</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('چ');" href="javascript:;">چ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ط');" href="javascript:;">ط</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ب');" href="javascript:;">ب</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ن');" href="javascript:;">ن</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('م');" href="javascript:;">م</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ذ');" href="javascript:;">ذ</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ژ');" href="javascript:;">ژ</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+            <tr>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('ث');" href="javascript:;">ث</a></div></td>
+
+              <td><div class="unichars" ><a  onClick="funct('ظ');" href="javascript:;">ظ</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('ں');" href="javascript:;">ں</a></div></td>
+        <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars">&nbsp;</div></td>
+
+              <td><div class="unichars">&nbsp;</div></td>
+              <td><div class="unichars" ><a  onClick="funct('٫');" href="javascript:;">٫</a></div></td>
+              <td><div class="unichars" ><a  onClick="funct('؟');" href="javascript:;">؟</a></div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+            <td><div class="unichars">&nbsp;</div></td>
+
+            </tr>
+
+    
+
+      </tbody>
+    </table>
+            </div>
+        <div id="pane3" class="tab-pane" >
+                    <div class="tabbable">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#pane3-1" data-toggle="tab">Post-Processing</a></li>
+          <li > <a href="#pane3-2" data-toggle="tab">Verb</a></li>
+                <li > <a href="#pane3-3" data-toggle="tab">Normal</a></li>
+        
+        
+        </ul>
+                        <div class="tab-content">
+                        <div id="pane3-1" class="tab-pane active">
+                    <center>
+                          <!--
+The file indic_support.js contains the functions needed to enable typing in 
+Indic scripts.
+-->
+    <script src="../static/js/indic_support.js" type="text/javascript"></script>
+
+    <form action="{{=URL('store_paraphrase')}}" enctype="multipart/form-data" method="post">
+     <table>
+        <tr>
+            <td>Keyboard Layout: </td>
+            <td><script type="text/javascript">
+                loadKeyboardLayouts();
+                </script></td>
+            <br>
+        
+      <tr>
+      <td><div class = "e">Enter Passage:</div></td>
+            <td> <input type="text" class="indic_wi" name="Passage" id="pp" list="dataset"/>
+              <datalist id="dataset">
+                <option value="का">
+                  <option value="के">
+                  <option value="की">
+                  <option value="ने">
+                  <option value="को">
+                </datalist>
+            
+            
+            </td>
+            
+       </tr>
+       <tr>
+       	<td><input type="hidden" name="type" value="Post-Processing" /></td>
+       </tr>
+    <td><input type = "Submit" value = "Submit" /></td>
+        <td><input type="hidden" name="_formsname" value="phonetic" /></td>
+    <script>$('textarea').css('width','900px').css('height','150px');</script>
+    
+        </table>
+    </form>
+    <br /><br />
+  <b> Help: </b><br />
+            <li> Please select the keyboard layout in which you want to type.</li> <br />
+            <li> "Tick" show hint for the on click hint </li>                            
+                        
+                    </center>
+                            </div>
+                            <div id="pane3-2" class="tab-pane ">
+                    <center>
+                          <!--
+The file indic_support.js contains the functions needed to enable typing in 
+Indic scripts.
+-->
+    <script src="../static/js/indic_support.js" type="text/javascript"></script>
+
+    <form action="{{=URL('store_paraphrase')}}" enctype="multipart/form-data" method="post">
+     <table>
+        <tr>
+            <td>Keyboard Layout: </td>
+            <td><script type="text/javascript">
+                loadKeyboardLayouts();
+                </script></td>
+            <br>
+        
+      <tr>
+      <td><div class = "e">Enter Passage:</div></td>
+            <td> <input type="text" class="indic_wi" name="Passage" id="text" list="dataset"/>
+              <datalist id="dataset">
+                <option value="जगवाना">
+                  <option value="लगाना">
+                  <option value="जमाना">
+                  <option value="रोपना">
+                  <option value="लगाना">
+                </datalist>
+            
+            
+            </td>
+            
+       </tr>
+       <tr>
+       	<td><input type="hidden" name="type" value="Verb" /></td>
+       </tr>
+    <td><input type = "Submit" value = "Submit" /></td>
+        <td><input type="hidden" name="_formsname" value="phonetic" /></td>
+    <script>$('textarea').css('width','900px').css('height','150px');</script>
+    
+        </table>
+    </form>
+    <br /><br />
+  <b> Help: </b><br />
+            <li> Please select the keyboard layout in which you want to type.</li> <br />
+            <li> "Tick" show hint for the on click hint </li>
+
+                  
+</center>
+                            </div>
+                   <div id="pane3-3" class="tab-pane ">
+                    <center>
+                          <!--
+The file indic_support.js contains the functions needed to enable typing in 
+Indic scripts.
+-->
+    <script src="../static/js/indic_support.js" type="text/javascript"></script>
+
+    <form action="{{=URL('store_paraphrase')}}" enctype="multipart/form-data" method="post">
+     <table>
+        <tr>
+            <td>Keyboard Layout: </td>
+            <td><script type="text/javascript">
+                loadKeyboardLayouts();
+                </script></td>
+            <br>
+        
+      <tr>
+      <td><div class = "e">Enter Passage:</div></td>
+            <td> <input type="text" class="indic_wi" name="Passage" id="text" />
+              
+            
+            
+            </td>
+            
+       </tr>
+        <tr>
+       	<td><input type="hidden" name="type" value="Normal" /></td>
+       </tr>
+    <td><input type = "Submit" value = "Submit" /></td>
+        <td><input type="hidden" name="_formsname" value="phonetic" /></td>
+    <script>$('textarea').css('width','900px').css('height','150px');</script>
+    
+        </table>
+    </form>
+    <br /><br />
+  <b> Help: </b><br />
+            <li> Please select the keyboard layout in which you want to type.</li> <br />
+            <li> "Tick" show hint for the on click hint </li>
+
+                  
+                        
+                        </center>
+                                </div>
+                        </div></div>
+              </div><!-- /.tab-content -->
+          </div><!-- /.tabbable -->
